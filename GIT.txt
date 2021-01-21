@@ -25,5 +25,5 @@ git remote add origin git@github.com:sraspi/ACC.git
 git push -u origin master
 
 #anschließend:
-git pull --all
-git fetch --all
+git pull --all  # holt Änderung aus github
+git push --all  #upload zu github
