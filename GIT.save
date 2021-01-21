@@ -1,7 +1,7 @@
 git config --global user.name "Harry Potter"
 git config --global user.email "h.potter@hogwarts.prof"
 git config --global core.editor nano
-
+Test
 
 #im richtigen Ordner: 
 git init
