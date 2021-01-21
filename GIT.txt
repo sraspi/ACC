@@ -12,13 +12,13 @@ ls -a
 
 #new files need to be added to the Git repo and then committed
 git add --all
-git commit -am 'add json rules and python program'
+git commit -am 'text'
 
 git status
-git log snitch-sniffer.py
+git log datei.txt
 
-git checkout 5fd772a292c019a7cf3012b1156685280d4a7d2d snitch-sniffer.py
-git commit -am 'restore find function'
+git checkout 5fd772a292c019a7cf3012b1156685280d4a7d2d datei.txt
+git commit -am 'restore irgendwas'
 
 #github upload bei 1.upload:
 git remote add origin git@github.com:sraspi/ACC.git
@@ -26,4 +26,4 @@ git push -u origin master
 
 #anschließend:
 git pull --all  # holt Änderung aus github
-git push --all  #upload zu github
+git push --all  # upload zu github
