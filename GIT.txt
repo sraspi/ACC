@@ -1,5 +1,5 @@
 
-git config --global user.name "Harry Potter"
+git config --global user.name "Stefan Taubert-Apweiler"
 git config --global user.email "h.potter@hogwarts.prof"
 git config --global core.editor nano
 
