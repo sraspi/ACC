@@ -20,6 +20,10 @@ git log snitch-sniffer.py
 git checkout 5fd772a292c019a7cf3012b1156685280d4a7d2d snitch-sniffer.py
 git commit -am 'restore find function'
 
-#github upload:
+#github upload bei 1.upload:
 git remote add origin git@github.com:sraspi/ACC.git
 git push -u origin master
+
+#anschließend:
+git pull --all
+git fetch --all
