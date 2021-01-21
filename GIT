@@ -1,5 +1,5 @@
 git config --global user.name "Stefan"
-git config --global user.email "h.potter@hogwarts.prof"
+git config --global user.email "lokal geändert"
 git config --global core.editor nano
 
 
