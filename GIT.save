@@ -1,4 +1,4 @@
-git config --global user.name "Stefan"
+git config --global user.name "Harry Potter"
 git config --global user.email "h.potter@hogwarts.prof"
 git config --global core.editor nano
 
@@ -19,6 +19,5 @@ git log snitch-sniffer.py
 git checkout 5fd772a292c019a7cf3012b1156685280d4a7d2d snitch-sniffer.py
 git commit -am 'restore find function'
 
-#github upload:
+#upload to github:
 git remote add origin git@github.com:sraspi/ACC.git
-git push -u origin master
