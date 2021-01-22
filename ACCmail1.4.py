@@ -21,7 +21,7 @@ Dateiname = "/home/pi/ACC/logfile.txt"
 while True:
 #E-Mail an stefan.taubert.apweiler@gmail.com:
 
-  x1 = np.genfromtxt(Dateiname,skip_header=3,usecols=(5))
+  x1 = np.genfromtxt(Dateiname,skip_header=3,usecols=(11))
   last = len(x1)
   Temp = str((x1[last-1]))
   t = (Temp + " C ")
