@@ -4,5 +4,6 @@ cd /home/pi/noip
 sudo noip2 
 cd
 cd /home/pi/ACC
+sh filecopy.sh
 rm logfile.txt
-python3 ACC4.7.py
+python3 ACC4.8.py

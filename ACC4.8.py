@@ -47,6 +47,7 @@ Vg = 0 #aufsummierte Interrupts
 Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
+z1 = 0                                                        
 
 port = 1 							# init BME280
 address = 0x76
@@ -65,6 +66,11 @@ y7 = []
 y8 = []
 y9 = []
 y10 = []
+
+y1m =[]
+y2m =[]
+y3m =[]
+
 
 
 
@@ -155,7 +161,7 @@ def V_g(channel):
         
 
 def Input():
-    header = ("ACC4.7.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "Vg ," + "CPU_temp, " '\n')
+    header = ("ACC4.8.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "Vg ," + "CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -308,15 +314,27 @@ t.start()
 Startzeit = time.time() #Versuchsstartzeit
 
 def bme():
+    global bme_temp_m
+    global bme_pressure_m
+    global bme_humidity_m
+
     global bme_temp
     global bme_pressure
     global bme_humidity
 
 
     data = bme280.sample(bus, address, calibration_params)
-    bme_temp =     str(round((data.temperature + 0.24), 2))
+
+    bme_temp_m = (round((data.temperature + 0.24), 2))
+    bme_temp = str(round((data.temperature + 0.24), 2))
+
+    bme_pressure_m = (round((data.pressure +22), 0))
     bme_pressure = str(round((data.pressure +22), 0))
+
+    bme_humidity_m = (round((data.humidity),0))
     bme_humidity = str(round((data.humidity),0))
+
+
     
 def DS1820():
     global T1
@@ -349,10 +367,41 @@ try:
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  "  BME_temp: " + bme_temp + ' BME_pressure: ' + bme_pressure +  ' BME_humidity: ' + bme_humidity + ' Sensor' + str(1) + ': ' + str(T1) + '  ' + '    Sensor' +  str(2) + ':' + str(T2) + "    A0:" + str(A0max) + "    A1:" + str(A1max) + "    A2: " + str(A2max) + "    Vg:" + str(Vg))
             print() 
-                                                 #Datei erneut öffnen und schließen zum Schreiben der Messdaten
-            fobj_out = open(Dateiname,"a" )
-            fobj_out.write(Datum + " , " + str(delta) + " , "  + bme_temp + " , " + bme_pressure + " , "  + bme_humidity + " , " +  str(T1) +  ' , ' + str(T2) + ' , ' + str(A0max) + " , " +  str(A1max) + " , " + str(A2max) + " , " + str(Vg) + " , " + str(cput) + '\n' )
-            fobj_out.close()
+            
+            
+            if z1 > 15:
+                y1m = sum(y1m)/5
+                y2m = sum(y2m)/5
+                y3m = sum(y3m)/5
+                print(str(y1m))
+                print(str(y2m))
+                print(str(y3m))
+                z1 = 0
+                
+                fobj_out = open(Dateiname,"a" )
+                bme_temp_m = str(bme_temp_m)
+                bme_pressure_m = str(bme_pressure_m)
+                bme_humidity_m = str(bme_humidity_m)
+
+
+                fobj_out.write(Datum + " , " + str(delta) + " , "  + bme_temp_m + " , " + bme_pressure_m + " , "  + bme_humidity_m + " , " +  str(T1) +  ' , ' + str(T2) + ' , ' + str(A0max) + " , " +  str(A1max) + " , " + str(A2max) + " , " + str(Vg) + " , " + str(cput) + '\n' )
+                fobj_out.close()
+                y1m = [] 
+                y2m = [] 
+                y3m = [] 
+
+
+                
+            else:
+                print(z1)
+                y1m.append(bme_temp_m)
+                y2m.append(bme_pressure_m)
+                y3m.append(bme_humidity_m)
+
+                print("y1m:", y1m)
+                print("y2m:", y2m)
+                print("y3m:", y3m)
+                z1 = z1 + 1
             
             #Messwerte an Listen für späteren Graphen anhängen
             #x1.append(delta)
@@ -367,7 +416,7 @@ try:
             #y9.append(Vg)
             #y10.append(cput)             
 
-            
+           
             # hier kann spaltenweise aus Dateien auslesen
             #x1=np.genfromtxt(Dateiname,skip_header=3,usecols=(3))
             #y1=np.genfromtxt(Dateiname,skip_header=3,usecols=(5))
@@ -381,7 +430,7 @@ try:
             #y9=np.genfromtxt(Dateiname,skip_header=3,usecols=(21))
             #y10=np.genfromtxt(Dateiname,skip_header=3,usecols=(23))
             Trt = 0
-            time.sleep(56)
+            time.sleep(0.01)
 
 
             
@@ -429,6 +478,7 @@ except KeyboardInterrupt:
     print("\nBye")
     sys.exit()
         
+
 
 
 
