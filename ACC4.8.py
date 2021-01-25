@@ -325,14 +325,15 @@ def bme():
 
     data = bme280.sample(bus, address, calibration_params)
 
-    bme_temp_m = (round((data.temperature + 0.24), 2))
-    bme_temp = str(round((data.temperature + 0.24), 2))
+    bme_temp_m = (round((data.temperature), 2))
+    bme_temp = str(round((data.temperature), 2))
 
-    bme_pressure_m = (round((data.pressure +22), 0))
-    bme_pressure = str(round((data.pressure +22), 0))
+    bme_pressure_m = (round((data.pressure +21), 0))
+    bme_pressure = str(round((data.pressure +21), 0))
 
-    bme_humidity_m = (round((data.humidity),0))
-    bme_humidity = str(round((data.humidity),0))
+    bme_humidity_m = (round((data.humidity + 7),0))
+    bme_humidity = str(round((data.humidity + 7),0))
+
 
 
     
@@ -345,8 +346,8 @@ def DS1820():
     #s4 = sensors[3]
     #T1 = round(((callsensor(s1)),1)
     #T2 = round(((callsensor(s2)),1)
-    T1 = round(((callsensor(s1)) - 0.42),2)
-    T2 = round(((callsensor(s2)) -0.45), 2)
+    T1 = round(((callsensor(s1)) - 0.05),2)
+    T2 = round(((callsensor(s2)) + 0.32),2)
 
 
 try:
