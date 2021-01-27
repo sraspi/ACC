@@ -238,9 +238,9 @@ def txt1():                            #Text Messwerte
     global Text3
     global Text4
 
-    Text0 = ("P=" + bme_pressure + "hPa " + bme_temp + "C ")
-    Text1 = ("A1:" + str(A1max) + " Vg:" + str(Vg))
-    Text2 = ("A2 " + str(A2max))
+    Text0 = ("P=" + bme_pressure + " " + bme_temp + "C ")
+    Text1 = ("A1:" + str(A1max))
+    Text2 = ("Vg" + str((Vg)))
     Text3 = ("T1: " + str(T1))
     Text4 = ("T2: " + str(T2))
 
@@ -267,7 +267,7 @@ def txt3():                            #start text
 
     timestr = time.strftime("%Y%m%d_%H%M%S")
 
-    Text0 = ("ACC4.0.py")
+    Text0 = ("ACC4.8.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -295,10 +295,10 @@ def txt4():                           # reboot text
 
               
 # Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(6, GPIO.BOTH, callback = T_gn, bouncetime = 250)
+GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
 # Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(25, GPIO.BOTH, callback = T_rt, bouncetime = 500)  
-GPIO.add_event_detect(13, GPIO.BOTH, callback = V_g, bouncetime = 250)
+GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)  
+GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
 
 
 
@@ -325,14 +325,14 @@ def bme():
 
     data = bme280.sample(bus, address, calibration_params)
 
-    bme_temp_m = (round((data.temperature), 2))
-    bme_temp = str(round((data.temperature), 2))
+    bme_temp_m = (round((data.temperature - 1), 2))
+    bme_temp = str(round((data.temperature - 1), 2))
 
     bme_pressure_m = (round((data.pressure +21), 0))
     bme_pressure = str(round((data.pressure +21), 0))
 
-    bme_humidity_m = (round((data.humidity + 7),0))
-    bme_humidity = str(round((data.humidity + 7),0))
+    bme_humidity_m = (round((data.humidity + 5),0))
+    bme_humidity = str(round((data.humidity + 5),0))
 
 
 
@@ -346,8 +346,8 @@ def DS1820():
     #s4 = sensors[3]
     #T1 = round(((callsensor(s1)),1)
     #T2 = round(((callsensor(s2)),1)
-    T1 = round(((callsensor(s1)) - 0.05),2)
-    T2 = round(((callsensor(s2)) + 0.32),2)
+    T1 = round(((callsensor(s1)) - 1), 2)
+    T2 = round(((callsensor(s2))  - 1), 2)
 
 
 try:

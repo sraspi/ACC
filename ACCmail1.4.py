@@ -33,10 +33,10 @@ while True:
   p = (str(Pressure) + " hPa  ")
   print(p)
   
-  x3 = np.genfromtxt(Dateiname,skip_header=3,usecols=(9))
+  x3 = np.genfromtxt(Dateiname,skip_header=3,usecols=(21))
   last = len(x3)
   Humidity = str(x3[last-1])
-  h = (Humidity + " %")
+  h = (Humidity + "Vg")
   print(h)
 
   print("E-Mail wird erstellt")
