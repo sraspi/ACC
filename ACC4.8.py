@@ -44,6 +44,7 @@ m = 0
 o = 0
 p = 0
 Vg = 0 #aufsummierte Interrupts
+V = 0 #Vg/2 wegen >BOTH
 Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
@@ -157,11 +158,13 @@ def TGZ_sim2():
 
 def V_g(channel):
     global Vg
+    global V
     Vg = Vg + 1
+    V = 0.5 * Vg
         
 
 def Input():
-    header = ("ACC4.8.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "Vg ," + "CPU_temp, " '\n')
+    header = ("ACC4.8.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -238,9 +241,9 @@ def txt1():                            #Text Messwerte
     global Text3
     global Text4
 
-    Text0 = ("P=" + bme_pressure + " " + bme_temp + "C ")
+    Text0 = ("P=" + bme_pressure + " " + bme_temp)
     Text1 = ("A1:" + str(A1max))
-    Text2 = ("Vg" + str((Vg)))
+    Text2 = ("V" + str(V))
     Text3 = ("T1: " + str(T1))
     Text4 = ("T2: " + str(T2))
 
@@ -295,10 +298,10 @@ def txt4():                           # reboot text
 
               
 # Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
+GPIO.add_event_detect(6, GPIO.BOTH, callback = T_gn, bouncetime = 250)
 # Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)  
-GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
+GPIO.add_event_detect(25, GPIO.BOTH, callback = T_rt, bouncetime = 250)  
+GPIO.add_event_detect(13, GPIO.BOTH, callback = V_g, bouncetime = 25)
 
 
 
@@ -325,8 +328,8 @@ def bme():
 
     data = bme280.sample(bus, address, calibration_params)
 
-    bme_temp_m = (round((data.temperature - 1), 2))
-    bme_temp = str(round((data.temperature - 1), 2))
+    bme_temp_m = (round((data.temperature - 1.4),2))
+    bme_temp = str(round((data.temperature - 1.4),2))
 
     bme_pressure_m = (round((data.pressure +21), 0))
     bme_pressure = str(round((data.pressure +21), 0))
@@ -366,7 +369,7 @@ try:
             Nokia()
             
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  "  BME_temp: " + bme_temp + ' BME_pressure: ' + bme_pressure +  ' BME_humidity: ' + bme_humidity + ' Sensor' + str(1) + ': ' + str(T1) + '  ' + '    Sensor' +  str(2) + ':' + str(T2) + "    A0:" + str(A0max) + "    A1:" + str(A1max) + "    A2: " + str(A2max) + "    Vg:" + str(Vg))
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  "  BME_temp: " + bme_temp + ' BME_pressure: ' + bme_pressure +  ' BME_humidity: ' + bme_humidity + ' Sensor' + str(1) + ': ' + str(T1) + '  ' + '    Sensor' +  str(2) + ':' + str(T2) + "    A0:" + str(A0max) + "    A1:" + str(A1max) + "    A2: " + str(A2max) + "    Vg:" + str(V))
             print() 
             
             
@@ -385,7 +388,7 @@ try:
                 bme_humidity_m = str(bme_humidity_m)
 
 
-                fobj_out.write(Datum + " , " + str(delta) + " , "  + bme_temp_m + " , " + bme_pressure_m + " , "  + bme_humidity_m + " , " +  str(T1) +  ' , ' + str(T2) + ' , ' + str(A0max) + " , " +  str(A1max) + " , " + str(A2max) + " , " + str(Vg) + " , " + str(cput) + '\n' )
+                fobj_out.write(Datum + " , " + str(delta) + " , "  + bme_temp_m + " , " + bme_pressure_m + " , "  + bme_humidity_m + " , " +  str(T1) +  ' , ' + str(T2) + ' , ' + str(A0max) + " , " +  str(A1max) + " , " + str(A2max) + " , " + str(V) + " , " + str(cput) + '\n' )
                 fobj_out.close()
                 y1m = [] 
                 y2m = [] 
