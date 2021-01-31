@@ -43,8 +43,10 @@ n = 0
 m = 0
 o = 0
 p = 0
+
 Vg = 0 #aufsummierte Interrupts
 V = 0 #Vg/2 wegen >BOTH
+
 Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
@@ -114,6 +116,7 @@ GPIO.setup(27, GPIO.OUT)
 
 def LED_ON():
     GPIO.output(9, GPIO.HIGH)
+    GPIO.output(12, GPIO.HIGH) #BL_on
     GPIO.output(16, GPIO.HIGH)
     GPIO.output(17, GPIO.HIGH)
     GPIO.output(19, GPIO.HIGH)
@@ -125,7 +128,7 @@ def LED_ON():
 
 def LED_OFF():
     GPIO.output(9, GPIO.LOW)
-    GPIO.output(12, GPIO.LOW) #BL_OFF
+    #GPIO.output(12, GPIO.LOW)
     GPIO.output(16, GPIO.LOW)
     GPIO.output(17, GPIO.LOW)
     GPIO.output(19, GPIO.LOW)
@@ -138,41 +141,20 @@ def LED_OFF():
 def TGZ_sim1():
     a = 0
     while (a < 10):   
-        GPIO.setup(12, GPIO.OUT)
-        GPIO.output(12, GPIO.HIGH)
         LED_ON()
         time.sleep(0.025)
         LED_OFF()
         time.sleep(0.025)
-        a = a +1
-        
-        
-def TGZ_sim2():
-    a = 0
-    while (a < 5):
-        GPIO.output(16, GPIO.LOW)
-        time.sleep(0.05)
-        GPIO.output(16, GPIO.HIGH)
-        time.sleep(0.05)
-        a = a + 1
-
-def V_g(channel):
-    global Vg
-    global V
-    Vg = Vg + 1
-    V = (0.5 * Vg)*2.5
-        
+        a = a +1  
 
 def Input():
-    header = ("ACC4.8.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
+    header = ("ACC4.9.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
      
 
 def Nokia():
-    GPIO.setup(12, GPIO.OUT)
-    GPIO.output(12, GPIO.HIGH)
     d.begin(contrast=60)
     d.clear()
     d.display()
@@ -184,8 +166,6 @@ def Nokia():
     #draw.rectangle((35,2,54,22), outline=0, fill=255)
     #draw.polygon([(63,22), (73,2), (83,22)],
       #          outline=0, fill=255)
-
-   
     font = ImageFont.load_default()
     draw.text((1,1),  Text0, font=font)
     draw.text((1,10), Text1, font=font)
@@ -196,6 +176,8 @@ def Nokia():
     d.display()
     time.sleep(0.1)
     
+
+
 def ads(): # Read all the ADC channel values in a list.
     global A0max
     global A1max
@@ -225,7 +207,19 @@ def callsensor(sensor):
      
 Input() #Nutzereingaben
 
-# Callback-Funktion
+# Callback-Funktionen:
+
+def V_g(channel):
+    global Vg
+    global V
+    global Vt_start
+    global Vt_diff
+
+    Vt_end = time.time()
+    Vt_diff = (Vt_end - Vt_start)
+    Vg = Vg + 1
+    V = Vg*2.5
+      
 def T_gn(channel):
     global Tgn
     Tgn = Tgn + 1
@@ -233,6 +227,9 @@ def T_gn(channel):
 def T_rt(channel):
     global Trt
     Trt = Trt + 1
+
+
+#Display-Ausgaben konfigurieren:
 
 def txt1():                            #Text Messwerte
     global Text0
@@ -268,15 +265,18 @@ def txt3():                            #start text
     global Text3
     global Text4
 
-    timestr = time.strftime("%Y%m%d_%H%M%S")
+    timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC4.8.py")
+    Text0 = ("ACC4.9.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
     Text4 = ("          ")
-    GPIO.setup(12, GPIO.OUT)
     GPIO.output(12, GPIO.HIGH)
+    
+    
+
+   
 
 
 def txt4():                           # reboot text
@@ -287,7 +287,7 @@ def txt4():                           # reboot text
     global Text4
     GPIO.setup(12, GPIO.OUT)
     GPIO.output(12, GPIO.HIGH)
-    timestr = time.strftime("%Y%m%d_%H%M%S")
+    timestr = time.strftime("%Y%m%d_%H:%M")
 
     Text0 = ("Tgn:" + str(Tgn))
     Text1 = ("Trt:" + str(Trt))
@@ -296,26 +296,24 @@ def txt4():                           # reboot text
     Text4 = ("          ")
 
 
-              
-# Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(6, GPIO.BOTH, callback = T_gn, bouncetime = 250)
-# Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(25, GPIO.BOTH, callback = T_rt, bouncetime = 250)  
-GPIO.add_event_detect(13, GPIO.BOTH, callback = V_g, bouncetime = 25)
+def txt5():                           # shutdown text
+    global Text0
+    global Text1
+    global Text2
+    global Text3
+    global Text4
+    GPIO.setup(12, GPIO.OUT)
+    GPIO.output(12, GPIO.HIGH)
+    timestr = time.strftime("%Y%m%d_%H:%M")
+
+    Text0 = ("Tgn:" + str(Tgn))
+    Text1 = ("Trt:" + str(Trt))
+    Text2 = ("shutdown 4 sec")
+    Text3 = (str(timestr))
+    Text4 = ("  BYE!!!    ")
 
 
-
-txt3()                                 #LCD-Ausgabe von ADS und Temp
-Nokia()
-t = threading.Thread(target=TGZ_sim1)
-t.start()
-
-
-#t = threading.Thread(target=TGZ_sim2) bleibt als Treading Beispiel im Code
-#t.start()
-
-Startzeit = time.time() #Versuchsstartzeit
-
+             
 def bme():
     global bme_temp_m
     global bme_pressure_m
@@ -352,11 +350,27 @@ def DS1820():
     T1 = round(((callsensor(s1)) - 1), 2)
     T2 = round(((callsensor(s2))  - 1), 2)
 
+t = threading.Thread(target=TGZ_sim1)
+t.start()
+txt3()                                 #LCD-Ausgabe von ADS und Temp
+Nokia()
+
+Startzeit = time.time() #Versuchsstartzeit
+Vt_start = time.time()  #Startzeit fuer Ermittlung von Vt_diff
+
+# Interrupt-Event hinzufuegen, 
+GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
+# Interrupt-Event hinzufuegen, 
+GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)  
+GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
+
+
+
 
 try:
-    TGZ_sim1()
+    
     while True:
-        if (Tgn < 1): 
+        if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
             delta = (Endzeit - Startzeit)/60/60  # Zeit in Stunden seit Versuchsstart
             cpu = CPUTemperature()
@@ -377,9 +391,6 @@ try:
                 y1m = sum(y1m)/5
                 y2m = sum(y2m)/5
                 y3m = sum(y3m)/5
-                print(str(y1m))
-                print(str(y2m))
-                print(str(y3m))
                 z1 = 0
                 
                 fobj_out = open(Dateiname,"a" )
@@ -397,14 +408,9 @@ try:
 
                 
             else:
-                print(z1)
                 y1m.append(bme_temp_m)
                 y2m.append(bme_pressure_m)
-                y3m.append(bme_humidity_m)
-
-                print("y1m:", y1m)
-                print("y2m:", y2m)
-                print("y3m:", y3m)
+                y3m.append(bme_humidity_m)     
                 z1 = z1 + 1
             
             #Messwerte an Listen für späteren Graphen anhängen
@@ -447,8 +453,10 @@ try:
             if (Trt > 3):
                 print('shutdown!!!')
                 print("Trt: " + str(Trt))
+                txt5()                                 #LCD-Ausgabe Trt Tgn und reboot
+                Nokia()
                 subprocess.call('/home/pi/ACC/shutdown.sh')
-                time.sleep(5)
+                time.sleep(4)
             if (Trt > 0):
                 t = threading.Thread(target=TGZ_sim1)
                 t.start()
@@ -461,7 +469,7 @@ try:
                 Nokia()
                 time.sleep(4)
                 subprocess.call('/home/pi/ACC/reboot.sh')
-                time.sleep(5)
+                time.sleep(4)
   
 
             else:
@@ -482,6 +490,7 @@ except KeyboardInterrupt:
     print("\nBye")
     sys.exit()
         
+
 
 
 
