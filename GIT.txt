@@ -22,6 +22,7 @@ git checkout 5fd772a292c019a7cf3012b1156685280d4a7d2d datei.txt
 git commit -am 'restore irgendwas'
 
 #github upload bei 1.upload:
+pi mkdir .ssh
 pi: cd ~/.ssh
 
 profile/settungs/SSH and GPG keys:new key
