@@ -29,7 +29,7 @@ from email.mime.text import MIMEText
 
 
 #Kernelmodule laden
-os.system('modprobe w1-gpio')                   
+os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
 #1wire-Tempsensoren auslesen:
@@ -44,15 +44,15 @@ m = 0
 o = 0
 p = 0
 
-Vg = 0 #aufsummierte Interrupts
-V = 0 #Vg/2 wegen >BOTH
+Vg = 0                                                     #aufsummierte Interrupts
+V = 0
 
-Tgn = 0 #aufsummierte Taster_grün
-Trt = 0 #aufsummierte Taster_rot
+Tgn = 0                                                    #aufsummierte Taster_grün
+Trt = 0                                                    #aufsummierte Taster_rot
 
-z1 = 0                                                        
+z1 = 0
 
-port = 1 							# init BME280
+port = 1 						init BME280
 address = 0x76
 #bus = smbus2.SMBus(port)
 #calibration_params = bme280.load_calibration_params(bus, address)
@@ -149,7 +149,7 @@ def TGZ_sim1():
         a = a +1  
 
 def Input():
-    header = ("ACC5.0.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
+    header = ("ACC5.1.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -268,7 +268,7 @@ def txt3():                            #start text
 
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC4.9.py")
+    Text0 = ("ACC5.1.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -364,13 +364,18 @@ GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
 # Interrupt-Event hinzufuegen, 
 GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)  
 GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
-
+Trt = 1
 
 
 
 try:
     
     while True:
+
+        print("Trt", Trt)
+        if (Trt > 0):
+            print("Trt:", Trt)
+
         if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
             delta = (Endzeit - Startzeit)/60/60  # Zeit in Stunden seit Versuchsstart

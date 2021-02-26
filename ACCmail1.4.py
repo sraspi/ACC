@@ -21,27 +21,27 @@ Dateiname = "/home/pi/ACC/logfile.txt"
 while True:
 #E-Mail an stefan.taubert.apweiler@gmail.com:
 
-  x1 = np.genfromtxt(Dateiname,skip_header=3,usecols=(7))
+  x1 = np.genfromtxt(Dateiname,skip_header=3,usecols=(5))
   last = len(x1)
   Temp = str((x1[last-1]))
-  t = (Temp + " C ")
+  t = (Temp + " C, ")
   print(t)
 
-  x2 = np.genfromtxt(Dateiname,skip_header=3,usecols=(5))
+  x2 = np.genfromtxt(Dateiname,skip_header=3,usecols=(7))
   last = len(x2)
   Pressure = str(x2[last-1])
-  p = (str(Pressure) + "   ")
+  p = (str(Pressure) + " C, ")
   print(p)
   
-  x3 = np.genfromtxt(Dateiname,skip_header=3,usecols=(9))
+  x3 = np.genfromtxt(Dateiname,skip_header=3,usecols=(11))
   last = len(x3)
   Humidity = str(x3[last-1])
-  h = (Humidity + "   ")
+  h = ("CPU:" + Humidity + " C ")
   print(h)
 
   print("E-Mail wird erstellt")
   Inhalt = "Temp-Daten"
-  Betreff = (t + p +h)
+  Betreff = ("ACC: " + t + p +h)
   sender_email = "sraspi21@gmail.com"
   receiver_email = "stefan.taubert.apweiler@gmail.com"
   password = "StJ19gmail"
