@@ -22,6 +22,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
 # Import the ADS1115 module.
 # Create an ADS1115 ADC (16-bit) instance.
 #from ADS1x15 import ADS1115
@@ -159,7 +160,7 @@ def Nokia():
     d.begin(contrast=60)
     d.clear()
     d.display()
-    time.sleep(0.1)
+    time.sleep(0.15)
     #GPIO.output(12, GPIO.HIGH) #BL_ON
     draw = ImageDraw.Draw(image)
     draw.rectangle((0,0,84,48), outline=255, fill=255)
@@ -252,7 +253,7 @@ def txt2():                            #Abfrage boot/reboot?
     global Text3
     global Text4
 
-    Text0 = ("REBOOT?   1*RT")
+    Text0 = ("REBOOT?   2*RT")
     Text1 = ("SHUTDOWN? 3*RT")
     Text2 = ("Tgn:" + str(Tgn))
     Text3 = ("Trt:" + str(Trt))
@@ -265,9 +266,6 @@ def txt3():                            #boot text
     global Text2
     global Text3
     global Text4
-    GPIO.output(12, GPIO.HIGH)         # Backlight ON
-    print("Backlight ON")
-    print("rebooted")
     timestr = time.strftime("%Y%m%d_%H:%M")
 
     Text0 = ("ACC5.1.py")
@@ -275,9 +273,7 @@ def txt3():                            #boot text
     Text2 = ("BL-check")
     Text3 = (str(timestr))
     Text4 = ("          ")
-    time.sleep(3)
-    GPIO.output(12, GPIO.LOW)
-    print("Backlight OFF")
+    
 
 
 
@@ -287,15 +283,13 @@ def txt4():                            # reboot text
     global Text2
     global Text3
     global Text4
-    GPIO.setup(12, GPIO.OUT)
-    #GPIO.output(12, GPIO.HIGH)
     timestr = time.strftime("%Y%m%d_%H:%M")
 
     Text0 = ("Tgn:" + str(Tgn))
     Text1 = ("Trt:" + str(Trt))
     Text2 = ("reboot in 4 sec")
     Text3 = (str(timestr))
-    Text4 = ("          ")
+    Text4 = ("  BYE!!! ")
 
 
 def txt5():                           # shutdown text
@@ -304,8 +298,6 @@ def txt5():                           # shutdown text
     global Text2
     global Text3
     global Text4
-    GPIO.setup(12, GPIO.OUT)
-    GPIO.output(12, GPIO.HIGH)
     timestr = time.strftime("%Y%m%d_%H:%M")
     print("shutdown in 4 sec")
     Text0 = ("Tgn:" + str(Tgn))
@@ -313,6 +305,7 @@ def txt5():                           # shutdown text
     Text2 = ("shutdown 4 sec")
     Text3 = (str(timestr))
     Text4 = ("  BYE!!!    ")
+    time.sleep(4)
 
 
 
@@ -353,32 +346,35 @@ def DS1820():
 
 t = threading.Thread(target=TGZ_sim1)
 t.start()
+time.sleep(1.5)                          #time.sleep notwendig um auf thread-Ende zu warten!
+GPIO.output(12, GPIO.HIGH)
 txt3()                                 #LCD-Ausgabe von boot-text
 Nokia()
+time.sleep(5)
+GPIO.output(12, GPIO.LOW)
+
 
 Startzeit = time.time()                #Versuchsstartzeit
 Vt_start = time.time()                 #Startzeit fuer Ermittlung von Vt_diff
 
 # Interrupt-Event hinzufuegen
-GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
-# Interrupt-Event hinzufuegen
 GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)
+GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
 GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
-Trt = 1
+
 
 
 
 try:
 
     while True:
-        print("Trt: ", Trt)
+        print("Tgn:", Tgn)
+        print("Trt:", Trt)
         if (Trt > 0):
-            print("Trt:", Trt)
-            GPIO.output(12, GPIO.HIGH) # Backlight ON
-            print("Backlight ON 5 sec")
-            time.sleep(5)
-            GPIO.output(12, GPIO.LOW) # Backlight OFF
-            print("Backlight OFF")
+            GPIO.output(12, GPIO.HIGH)
+            time.sleep(4)
+            GPIO.output(12, GPIO.LOW)
+            Trt = 0
 
         if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
@@ -446,7 +442,7 @@ try:
             #y8=np.genfromtxt(Dateiname,skip_header=3,usecols=(19))
             #y9=np.genfromtxt(Dateiname,skip_header=3,usecols=(21))
             #y10=np.genfromtxt(Dateiname,skip_header=3,usecols=(23))
-            Trt = 0
+            
             time.sleep(0.01)
 
 
@@ -454,22 +450,26 @@ try:
         else:
             print()
             print("reboot?")
+            GPIO.output(12, GPIO.HIGH)
             txt2()
             Nokia()
             time.sleep(4)
+            print("Trt",Trt)
+
             if (Trt > 3):
+                GPIO.output(12, GPIO.HIGH)
                 print('shutdown!!!')
                 print("Trt: " + str(Trt))
                 txt5()                                 #LCD-Ausgabe Trt Tgn und reboot
                 Nokia()
                 subprocess.call('/home/pi/ACC/shutdown.sh')
                 time.sleep(4)
-            if (Trt > 0):
+            
+            if (Trt > 1):
                 t = threading.Thread(target=TGZ_sim1)
                 t.start()
-                GPIO.setup(12, GPIO.OUT)
-                #GPIO.output(12, GPIO.HIGH)
-
+                time.sleep(2)
+                GPIO.output(12, GPIO.HIGH)
                 print('reboot')
                 print("Trt: " + str(Trt))
                 txt4()                                 #LCD-Ausgabe Trt Tgn und reboot
@@ -482,6 +482,9 @@ try:
             else:
                 Trt = 0
                 Tgn = 0
+                GPIO.output(12, GPIO.LOW)
+       
+        
 
 except KeyboardInterrupt:
     print("keyboardInterrupt")
