@@ -22,6 +22,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
 # Import the ADS1115 module.
 # Create an ADS1115 ADC (16-bit) instance.
 #from ADS1x15 import ADS1115
@@ -29,7 +30,7 @@ from email.mime.text import MIMEText
 
 
 #Kernelmodule laden
-os.system('modprobe w1-gpio')                   
+os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
 #1wire-Tempsensoren auslesen:
@@ -50,7 +51,7 @@ V = 0 #Vg/2 wegen >BOTH
 Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
-z1 = 0                                                        
+z1 = 0
 
 port = 1 							# init BME280
 address = 0x76
@@ -141,25 +142,25 @@ def LED_OFF():
 
 def TGZ_sim1():
     a = 0
-    while (a < 10):   
+    while (a < 10):
         LED_ON()
         time.sleep(0.025)
         LED_OFF()
         time.sleep(0.025)
-        a = a +1  
-
+        a = a +1
+#                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC5.0.py started at: " +timestr + '\n' + '\n' + "Zeit ," + "t[h] ," + "BME_temp ,"  + "BEM_pressure ," + "BME_humidity ," + "T1 ," + "T2 ," + "A0 ," + "A1 ," + "A2 ," + "V ," + "CPU_temp, " '\n')
+    header = ("ACC5.3.py started at: " +timestr + '\n' + "#Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "        t[h] ," +  "     T1 ," + "     T2 , " + "V ," + "CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
-     
+
 
 def Nokia():
     d.begin(contrast=60)
     d.clear()
     d.display()
-    time.sleep(0.1)
+    time.sleep(0.15)
     #GPIO.output(12, GPIO.HIGH) #BL_ON
     draw = ImageDraw.Draw(image)
     draw.rectangle((0,0,84,48), outline=255, fill=255)
@@ -176,7 +177,7 @@ def Nokia():
     d.image(image)
     d.display()
     time.sleep(0.1)
-    
+
 
 
 def ads(): # Read all the ADC channel values in a list.
@@ -184,7 +185,7 @@ def ads(): # Read all the ADC channel values in a list.
     global A1max
     global A2max
     global A3max
-    
+
     for n in range(50):
         # Read the specified ADC channel using the previously set gain value.
         A0[n] = adc.read_adc(0, gain=GAIN)
@@ -195,17 +196,17 @@ def ads(): # Read all the ADC channel values in a list.
     A1max=round(((max(A1)-13365)*4.096/32768)*10*240,2)
     A2max=round(((max(A2)-13230)*4.096/32768),0)
     A3max=round(((max(A3)-13230)*4.096/32768)*10*240,2)
-              
+
 def callsensor(sensor):
-    
+
     f = open(sensorpath + sensor + sensorfile, 'r')       #Pfad, Sensor-ID und Geraetedatei zusammensetzen, Datei im Lesemodus oeffnen
     lines = f.readlines()                     #Inhalt der Datei in lines schreiben
     f.close()                         #Datei schliessen
     temp_line = lines[1].find('t=')               #Den Index (Position) von t= in temp_line schreiben
     temp_output = lines[1].strip() [temp_line+2:]       #Index 1 (Zeile 2) strippen und die Zeichen nach t= in temp_output schreiben
     temp_celsius = float(temp_output) / 1000            #Tausendstelgrad durch 1000 teilen und so in Grad Celsius wandeln, in temp_celsius
-    return temp_celsius 
-     
+    return temp_celsius
+
 Input() #Nutzereingaben
 
 # Callback-Funktionen:
@@ -220,11 +221,11 @@ def V_g(channel):
     Vt_diff = (Vt_end - Vt_start)
     Vg = Vg + 1
     V = Vg*2.5
-      
+
 def T_gn(channel):
     global Tgn
     Tgn = Tgn + 1
-    
+
 def T_rt(channel):
     global Trt
     Trt = Trt + 1
@@ -252,49 +253,43 @@ def txt2():                            #Abfrage boot/reboot?
     global Text3
     global Text4
 
-    Text0 = ("REBOOT?   1*RT")
+    Text0 = ("REBOOT?   2*RT")
     Text1 = ("SHUTDOWN? 3*RT")
-    Text2 = ("Tgn:" + str(Tgn))       
-    Text3 = ("Trt:" + str(Trt)) 
+    Text2 = ("Tgn:" + str(Tgn))
+    Text3 = ("Trt:" + str(Trt))
     Text4 = ("wait 4 sec.")
-   
 
-def txt3():                            #start text
+
+def txt3():                            #boot text
     global Text0
     global Text1
     global Text2
     global Text3
     global Text4
-
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC4.9.py")
+    Text0 = ("ACC5.2.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
     Text4 = ("          ")
-    #GPIO.output(12, GPIO.HIGH)
-    
     
 
-   
 
 
-def txt4():                           # reboot text
+def txt4():                            # reboot text
     global Text0
     global Text1
     global Text2
     global Text3
     global Text4
-    GPIO.setup(12, GPIO.OUT)
-    #GPIO.output(12, GPIO.HIGH)
     timestr = time.strftime("%Y%m%d_%H:%M")
 
     Text0 = ("Tgn:" + str(Tgn))
     Text1 = ("Trt:" + str(Trt))
     Text2 = ("reboot in 4 sec")
     Text3 = (str(timestr))
-    Text4 = ("          ")
+    Text4 = ("  BYE!!! ")
 
 
 def txt5():                           # shutdown text
@@ -303,18 +298,17 @@ def txt5():                           # shutdown text
     global Text2
     global Text3
     global Text4
-    GPIO.setup(12, GPIO.OUT)
-    #GPIO.output(12, GPIO.HIGH)
     timestr = time.strftime("%Y%m%d_%H:%M")
-
+    print("shutdown in 4 sec")
     Text0 = ("Tgn:" + str(Tgn))
     Text1 = ("Trt:" + str(Trt))
     Text2 = ("shutdown 4 sec")
     Text3 = (str(timestr))
     Text4 = ("  BYE!!!    ")
+    time.sleep(4)
 
 
-             
+
 def bme():
     global bme_temp_m
     global bme_pressure_m
@@ -327,18 +321,17 @@ def bme():
 
     data = bme280.sample(bus, address, calibration_params)
 
-    bme_temp_m = (round((data.temperature - 1.4),2))
-    bme_temp = str(round((data.temperature - 1.4),2))
+    bme_temp_m = (round((data.temperature - 1), 2))
+    bme_temp = str(round((data.temperature - 1), 2))
 
     bme_pressure_m = (round((data.pressure +21), 0))
     bme_pressure = str(round((data.pressure +21), 0))
 
-    bme_humidity_m = (round((data.humidity + 5),0))
-    bme_humidity = str(round((data.humidity + 5),0))
+    bme_humidity_m = (round((data.humidity + 4), 0))
+    bme_humidity = str(round((data.humidity + 4), 0))
 
 
 
-    
 def DS1820():
     global T1
     global T2
@@ -348,72 +341,86 @@ def DS1820():
     #s4 = sensors[3]
     #T1 = round(((callsensor(s1)),1)
     #T2 = round(((callsensor(s2)),1)
-    T1 = round(((callsensor(s1)) - 1), 2)
-    T2 = round(((callsensor(s2))  - 1), 2)
+    T1 = round(((callsensor(s1)) + 0.44), 2)
+    if (T1 > 125):
+        T1 = T1 - 4096
+    T2 = round(((callsensor(s2))- 0.69), 2)
+    if (T2 > 125):
+        T2 = T2 -4096
 
 t = threading.Thread(target=TGZ_sim1)
 t.start()
-txt3()                                 #LCD-Ausgabe von ADS und Temp
+time.sleep(1.5)                          #time.sleep notwendig um auf thread-Ende zu warten!
+GPIO.output(12, GPIO.HIGH)
+txt3()                                 #LCD-Ausgabe von boot-text
 Nokia()
+time.sleep(5)
+GPIO.output(12, GPIO.LOW)
 
-Startzeit = time.time() #Versuchsstartzeit
-Vt_start = time.time()  #Startzeit fuer Ermittlung von Vt_diff
 
-# Interrupt-Event hinzufuegen, 
+Startzeit = time.time()                #Versuchsstartzeit
+Vt_start = time.time()                 #Startzeit fuer Ermittlung von Vt_diff
+
+# Interrupt-Event hinzufuegen
+GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)
 GPIO.add_event_detect(6, GPIO.RISING, callback = T_gn, bouncetime = 250)
-# Interrupt-Event hinzufuegen, 
-GPIO.add_event_detect(25, GPIO.RISING, callback = T_rt, bouncetime = 250)  
 GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
 
 
 
 
 try:
-    
+
     while True:
+        print("Tgn:", Tgn)
+        print("Trt:", Trt)
+        if (Trt > 0):
+            GPIO.output(12, GPIO.HIGH)
+            time.sleep(4)
+            GPIO.output(12, GPIO.LOW)
+            Trt = 0
+
         if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
             delta = (Endzeit - Startzeit)/60/60  # Zeit in Stunden seit Versuchsstart
             cpu = CPUTemperature()
-            cput = float(cpu.temperature) 
+            cput = float(cpu.temperature)
             #bme()                                #BME-Werte abfragen
             #ads()                                # ADS-Sensorwerte abfragen
             DS1820()                             #1W-Werte abfragen
             #GPIO.output(26, GPIO.HIGH) # ON
             txt1()                               #LCD-Ausgabe von ADS und Temp
             Nokia()
-            
+
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  ' Sensor' + str(1) + ': ' + str(T1) + '  ' + '    Sensor' +  str(2) + ':' + str(T2) +  "    Vg:" + str(V))
-            print() 
-            
-            
+            print()
+
             if z1 > 15:
-                #y1m = sum(y1m)/5
-                #y2m = sum(y2m)/5
+                y1m = round((sum(y1m)/16), 2)
+                y2m = round((sum(y2m)/16), 2)
                 #y3m = sum(y3m)/5
                 z1 = 0
-                
+
                 fobj_out = open(Dateiname,"a" )
                 #bme_temp_m = str(bme_temp_m)
                 #bme_pressure_m = str(bme_pressure_m)
                 #bme_humidity_m = str(bme_humidity_m)
 
 
-                fobj_out.write(Datum + " , " + str(delta) + " , "  +  str(T1) +  ' , ' + str(T2) + " , " + str(V) + " , " + str(cput) + '\n' )
+                fobj_out.write(Datum + " , " + str(delta) + " , "  +  str(y1m)+  ' , ' + str(y2m) + " , " + str(V) + " , " + str(cput) + '\n' )
                 fobj_out.close()
-                y1m = [] 
-                y2m = [] 
-                y3m = [] 
+                y1m = []
+                y2m = []
+                y3m = []
 
 
-                
             else:
-                #y1m.append(bme_temp_m)
-                #y2m.append(bme_pressure_m)
-                #y3m.append(bme_humidity_m)     
+                y1m.append(T1)
+                y2m.append(T2)
+                #y3m.append(bme_humidity_m)
                 z1 = z1 + 1
-            
+
             #Messwerte an Listen für späteren Graphen anhängen
             #x1.append(delta)
             #y1.append(bme_temp)
@@ -425,9 +432,8 @@ try:
             #y7.append(A1max)
             #y8.append(A2max)
             #y9.append(Vg)
-            #y10.append(cput)             
+            #y10.append(cput)
 
-           
             # hier kann spaltenweise aus Dateien auslesen
             #x1=np.genfromtxt(Dateiname,skip_header=3,usecols=(3))
             #y1=np.genfromtxt(Dateiname,skip_header=3,usecols=(5))
@@ -440,30 +446,34 @@ try:
             #y8=np.genfromtxt(Dateiname,skip_header=3,usecols=(19))
             #y9=np.genfromtxt(Dateiname,skip_header=3,usecols=(21))
             #y10=np.genfromtxt(Dateiname,skip_header=3,usecols=(23))
-            Trt = 0
+            
             time.sleep(0.01)
 
 
-            
+
         else:
             print()
             print("reboot?")
+            GPIO.output(12, GPIO.HIGH)
             txt2()
             Nokia()
             time.sleep(4)
+            print("Trt",Trt)
+
             if (Trt > 3):
+                GPIO.output(12, GPIO.HIGH)
                 print('shutdown!!!')
                 print("Trt: " + str(Trt))
                 txt5()                                 #LCD-Ausgabe Trt Tgn und reboot
                 Nokia()
                 subprocess.call('/home/pi/ACC/shutdown.sh')
                 time.sleep(4)
-            if (Trt > 0):
+            
+            if (Trt > 1):
                 t = threading.Thread(target=TGZ_sim1)
                 t.start()
-                GPIO.setup(12, GPIO.OUT)
-                #GPIO.output(12, GPIO.HIGH)
-
+                time.sleep(2)
+                GPIO.output(12, GPIO.HIGH)
                 print('reboot')
                 print("Trt: " + str(Trt))
                 txt4()                                 #LCD-Ausgabe Trt Tgn und reboot
@@ -471,16 +481,15 @@ try:
                 time.sleep(4)
                 subprocess.call('/home/pi/ACC/reboot.sh')
                 time.sleep(4)
-  
+
 
             else:
                 Trt = 0
                 Tgn = 0
-           
-    
+                GPIO.output(12, GPIO.LOW)
+       
         
-            
-            
+
 except KeyboardInterrupt:
     print("keyboardInterrupt")
     timestr = time.strftime("%Y%m%d_%H%M%S")
@@ -490,7 +499,7 @@ except KeyboardInterrupt:
     GPIO.cleanup()
     print("\nBye")
     sys.exit()
-        
+
 
 
 
