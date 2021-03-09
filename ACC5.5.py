@@ -34,8 +34,8 @@ os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
 #1wire-Tempsensoren auslesen:
-sensorcount = 2                                            #Festlegen, wieviele Sensoren vorhanden sind
-sensors = ['28-3c01d6072b77', '28-3c01d607858e'];          #Array mit den Sensor-IDs
+sensorcount = 1                                            #Festlegen, wieviele Sensoren vorhanden sind
+sensors = ['28-01143bf843aa']          #Array mit den Sensor-IDs
 sensorpath = '/sys/bus/w1/devices/'                        #Pfad zum Sensorverzeichnis
 sensorfile = '/w1_slave'                                   #Geraetedatei
 
@@ -74,6 +74,7 @@ y10 = []
 y1m =[]
 y2m =[]
 y3m =[]
+y4m =[]
 
 
 
@@ -100,9 +101,9 @@ spiSettings = SPI.SpiDev(0, 0, max_speed_hz=4000000)#Settings Nokia LCD
 d = LCD.PCD8544(23, 24, spi=spiSettings)            #Settings Nokia LCD
 image = Image.new('1', (LCD.LCDWIDTH, LCD.LCDHEIGHT))
 
-GPIO.setup(6, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pullup-Widerstand aktivieren #Tgn
-GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pullup-Widerstand aktivieren #Trt
-GPIO.setup(13, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pullup-Widerstand aktivieren # TGZ_Vg
+GPIO.setup(6, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pulldown-Widerstand aktivieren #Tgn
+GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pulldown-Widerstand aktivieren #Trt
+GPIO.setup(13, GPIO.IN, pull_up_down = GPIO.PUD_UP) # GPIO 6  als Input definieren und Pulldown-Widerstand aktivieren # TGZ_Vg
 
 GPIO.setup(9, GPIO.OUT)
 GPIO.setup(12, GPIO.OUT)
@@ -235,16 +236,13 @@ def T_rt(channel):
 
 def txt1():                            #Text Messwerte
     global Text0
-    global Text1
-    global Text2
-    global Text3
-    global Text4
+    
 
     Text0 = ("T1 " + str(T1))
-    Text1 = ("T2 " + str(T2))
-    Text2 = ("V" + str(V))
-    Text3 = ("--------")
-    Text4 = ("--------")
+    Text1 = (" ")
+    Text2 = (" ")
+    Text3 = (" ")
+    Text4 = (" ")
 
 def txt2():                            #Abfrage boot/reboot?
     global Text0
@@ -268,7 +266,7 @@ def txt3():                            #boot text
     global Text4
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC5.2.py")
+    Text0 = ("ACC_5.5.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -334,19 +332,14 @@ def bme():
 
 def DS1820():
     global T1
-    global T2
     s1 = sensors[0]
-    s2 = sensors[1]
-    #s3 = sensors[2]
-    #s4 = sensors[3]
-    #T1 = round(((callsensor(s1)),1)
-    #T2 = round(((callsensor(s2)),1)
-    T1 = round(((callsensor(s1)) + 0.44), 2)
+    
+    
+    T1 = round(((callsensor(s1)) - 0.3), 2)
     if (T1 > 125):
         T1 = round((T1 - 4096), 2)
-    T2 = round(((callsensor(s2))- 0.19), 2)
-    if (T2 > 125):
-        T2 = round((T2 -4096), 2)
+
+    
 
 t = threading.Thread(target=TGZ_sim1)
 t.start()
@@ -393,13 +386,13 @@ try:
             Nokia()
 
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  ' Sensor' + str(1) + ': ' + str(T1) + '  ' + '    Sensor' +  str(2) + ':' + str(T2) +  "    Vg:" + str(V))
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " t: " + str(delta) +  ' Sensor' + str(1) + ': ' + str(T1) + "  Vg:" + str(V))
             print()
 
-            if z1 > 15:
-                y1m = round((sum(y1m)/16), 2)
-                y2m = round((sum(y2m)/16), 2)
-                #y3m = sum(y3m)/5
+            if z1 > 150:
+                y1m = round((sum(y1m)/151), 2)
+                
+                
                 z1 = 0
 
                 fobj_out = open(Dateiname,"a" )
@@ -408,16 +401,13 @@ try:
                 #bme_humidity_m = str(bme_humidity_m)
 
 
-                fobj_out.write(Datum + " , " + str(delta) + " , "  +  str(y1m)+  ' , ' + str(y2m) + " , " + str(V) + " , " + str(cput) + '\n' )
+                fobj_out.write(Datum + " , " + str(delta) + " , "  +  str(y1m)+  ' , ' + str(V) + " , " + str(cput) + '\n' )
                 fobj_out.close()
                 y1m = []
-                y2m = []
-                y3m = []
-
+                
 
             else:
                 y1m.append(T1)
-                y2m.append(T2)
                 #y3m.append(bme_humidity_m)
                 z1 = z1 + 1
 
