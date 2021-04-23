@@ -157,7 +157,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC5.8.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 16 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC5.9.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -200,10 +200,11 @@ def ads(): # Read all the ADC channel values in a list.
         A2[n] = adc.read_adc(2, gain=GAIN)
         A3[n] = adc.read_adc(3, gain=GAIN)
     
-    A0max=round((max(A0)-20000)*0.000125/0.185*240,4)                     # Angabe in Watt!! 20000 Counts entsprechen 2,5V>>d.h. der Mittelwert des ADC bei 0V [185mV/A] 
-    A1max=round((max(A1)-20000),1) 
-    A2max=round((max(A2)),1) 
-    A3max=round((max(A2)*0.000125),1)                           # 0.000125V pro Count
+    A0max=round((max(A0)-20000)*0.000125/0.185*240,1)                     # Angabe in Watt!! 20000 Counts entsprechen 2,5V>>d.h. der Mittelwert des ADC bei 0V [185mV/A] 
+    A1max=round((max(A1)-20000)*0.000125/0.185*240,1) 
+    A2max=round(max(A2)*0.000125,1) 
+    A3max=round(max(A2)*0.000125,1)                           # 0.000125V pro Count
+
 def callsensor(sensor):
 
     f = open(sensorpath + sensor + sensorfile, 'r')       #Pfad, Sensor-ID und Geraetedatei zusammensetzen, Datei im Lesemodus oeffnen
@@ -249,8 +250,8 @@ def txt1():                            #Text Messwerte
 
     Text0 = ("A0 " + str(A0max))
     Text1 = ("A1 " + str(A1max))
-    Text2 = ("1:" + str(round(T1,1)) + " 2:" + str(round(T2,1)))
-    Text3 = ("3:" + str(T3) + " 4:" + str(T4))
+    Text2 = (" " + str(round(T1,1)) + " " + str(round(T2,1)))
+    Text3 = (" " + str(T3) + " " + str(T4))
     Text4 = ("Vg:" + str(Vg))
 
 def txt2():                            #Abfrage boot/reboot?
@@ -275,7 +276,7 @@ def txt3():                            #boot text
     global Text4
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC5.8.py")
+    Text0 = ("ACC5.9.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -401,7 +402,7 @@ try:
             GPIO.output(12, GPIO.LOW)
             Trt = 0
 
-        if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
+        if (Tgn < 1):                            #Mittelwertbildung aus 2 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
             delta = (Endzeit - Startzeit)/60/60  # Zeit in Stunden seit Versuchsstart
             cpu = CPUTemperature()
@@ -417,16 +418,16 @@ try:
             print(time.strftime("%Y-%m-%d %H:%M:%S") + "     t: " + str(round(delta,3)) +   ': ' + "             A0: "  + str(round(A0max,1)) + " A1: " + str(round(A1max,1)) + "             A2 "  + str(A2max)   +  "             A3 "  + str(A3max)  + "      T1: " + str(T1) + " T2: " + str(T2) + " T3: " + str(T3) + " T4: " + str(T4) + "       Vg:" + str(V))
             print()
 
-            if z1 > 15:
+            if z1 > 1:
                 #y1m-y4m: ADSmax   y5m-y8m:Temp
-                y1m = round((sum(y1m)/16), 2)
-                y2m = round((sum(y2m)/16), 2)
-                y3m = round((sum(y3m)/16), 2)
-                y4m = round((sum(y4m)/16), 2)
-                y5m = round((sum(y5m)/16), 2)
-                y6m = round((sum(y6m)/16), 2)
-                y7m = round((sum(y7m)/16), 2)
-                y8m = round((sum(y8m)/16), 2)
+                y1m = round((sum(y1m)/2), 2)
+                y2m = round((sum(y2m)/2), 2)
+                y3m = round((sum(y3m)/2), 2)
+                y4m = round((sum(y4m)/2), 2)
+                y5m = round((sum(y5m)/2), 2)
+                y6m = round((sum(y6m)/2), 2)
+                y7m = round((sum(y7m)/2), 2)
+                y8m = round((sum(y8m)/2), 2)
 
 
                 

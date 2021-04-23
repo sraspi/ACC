@@ -157,7 +157,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC5.8.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 16 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC5.7.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 16 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 ," + "     A2 , "  + "     T1 , " + "     T2 , " + "     T3 , "  + "     T4 , " + "      V ," + "  CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -200,10 +200,10 @@ def ads(): # Read all the ADC channel values in a list.
         A2[n] = adc.read_adc(2, gain=GAIN)
         A3[n] = adc.read_adc(3, gain=GAIN)
     
-    A0max=round((max(A0)-20000)*0.000125/0.185*240,4)                     # Angabe in Watt!! 20000 Counts entsprechen 2,5V>>d.h. der Mittelwert des ADC bei 0V [185mV/A] 
-    A1max=round((max(A1)-20000),1) 
+    A0max=round((max(A0)-19913)*0.000125,2)
+    A1max=round((max(A1)-19913),1) 
     A2max=round((max(A2)),1) 
-    A3max=round((max(A2)*0.000125),1)                           # 0.000125V pro Count
+    A3max=round((max(A2)*0.000125),1)
 def callsensor(sensor):
 
     f = open(sensorpath + sensor + sensorfile, 'r')       #Pfad, Sensor-ID und Geraetedatei zusammensetzen, Datei im Lesemodus oeffnen
@@ -275,7 +275,7 @@ def txt3():                            #boot text
     global Text4
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC5.8.py")
+    Text0 = ("ACC5.7.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -392,12 +392,9 @@ try:
     while True:
         print("Tgn:", Tgn)
         print("Trt:", Trt)
-        #Displaybeleuchtung ueber Trt
-        #GPIO.output(12, GPIO.HIGH)
-
         if (Trt > 0):
             GPIO.output(12, GPIO.HIGH)
-            time.sleep(5)
+            time.sleep(4)
             GPIO.output(12, GPIO.LOW)
             Trt = 0
 
@@ -414,7 +411,7 @@ try:
             Nokia()
 
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + "     t: " + str(round(delta,3)) +   ': ' + "             A0: "  + str(round(A0max,1)) + " A1: " + str(round(A1max,1)) + "             A2 "  + str(A2max)   +  "             A3 "  + str(A3max)  + "      T1: " + str(T1) + " T2: " + str(T2) + " T3: " + str(T3) + " T4: " + str(T4) + "       Vg:" + str(V))
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + "     t: " + str(round(delta,3)) +   ': ' + "             A0: "  + str(A0max) + " A1: " + str(A1max) + "             A2 "  + str(A2max)   +  "             A3 "  + str(A3max)  + "      T1: " + str(T1) + " T2: " + str(T2) + " T3: " + str(T3) + " T4: " + str(T4) + "       Vg:" + str(V))
             print()
 
             if z1 > 15:
@@ -438,7 +435,7 @@ try:
                 #bme_humidity_m = str(bme_humidity_m)
 
 
-                fobj_out.write(Datum + " , " + str(round(delta,3)) + " ,    "  +  str(round(y1m,2))+  ' ,    ' + str(round(y2m,1)) + " ,   " + str(y3m) + ' ,   ' + str(y4m) + ' ,   ' + str(y5m) + ' ,   ' + str(y6m) + ' ,   ' + str(y7m) + ' ,   ' + str(y8m) + ' ,   ' + str(V) + " ,  " + str(cput) + '\n' )
+                fobj_out.write(Datum + " , " + str(round(delta,3)) + " , "  +  str(y1m)+  ' , ' + str(y2m) + " , " + str(y3m) + ' , ' + str(y4m) + ' , ' + str(y5m) + ' , ' + str(y6m) + ' , ' + str(y7m) + ' , ' + str(y8m) + ' , ' + str(V) + " , " + str(cput) + '\n' )
                 fobj_out.close()
                 #Listen fuer Mittelwertbildung definieren:1-4 ADSmax, 5-8 Temp-Sensoren
                 y1m = []

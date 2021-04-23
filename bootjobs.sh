@@ -6,4 +6,4 @@ cd
 cd /home/pi/ACC
 sh filecopy.sh
 rm logfile.txt
-python3 ACC5.8.py
+python3 ACC5.9.py
