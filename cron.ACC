@@ -1,0 +1,4 @@
+
+@reboot cd /home/pi/ACC && ./bootjobs.sh
+03 06 * * * cd /home/pi/ACC && python3 ACC_Pi_control.py
+55 23 * * * sudo reboot now

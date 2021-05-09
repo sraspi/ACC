@@ -52,6 +52,7 @@ Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
 z1 = 0
+NAS  = True
 
 port = 1 							# init BME280
 address = 0x76
@@ -157,7 +158,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC5.9.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC6.2.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 4, CD-Ausgabe ." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 [W],"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  I1 ," +  "  I2. , "  + " CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -276,7 +277,7 @@ def txt3():                            #boot text
     global Text4
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC5.9.py")
+    Text0 = ("ACC6.2.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -388,17 +389,25 @@ GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
 
 
 
+
 try:
 
     while True:
+        if NAS:
+            f = open("/home/pi/NAS/error.log", "a") 
+            f.write("4")
+            f.close()
+            print("NAS 4 written")
+            NAS = False
+           
         print("Tgn:", Tgn)
         print("Trt:", Trt)
         #Displaybeleuchtung ueber Trt
         #GPIO.output(12, GPIO.HIGH)
 
-        if (Trt > 0):
+        if Trt ==1:
             GPIO.output(12, GPIO.HIGH)
-            time.sleep(5)
+        if Trt ==2:
             GPIO.output(12, GPIO.LOW)
             Trt = 0
 

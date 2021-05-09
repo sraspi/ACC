@@ -52,6 +52,7 @@ Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
 z1 = 0
+NAS  = True
 
 port = 1 							# init BME280
 address = 0x76
@@ -157,7 +158,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC5.8.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 16 Werten zur Speicherung, LCD-Ausgabe alle 4 sec." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC6.1.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 7, LCD-Ausgabe BL-ON/OFF." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -200,10 +201,11 @@ def ads(): # Read all the ADC channel values in a list.
         A2[n] = adc.read_adc(2, gain=GAIN)
         A3[n] = adc.read_adc(3, gain=GAIN)
     
-    A0max=round((max(A0)-20000)*0.000125/0.185*240,4)                     # Angabe in Watt!! 20000 Counts entsprechen 2,5V>>d.h. der Mittelwert des ADC bei 0V [185mV/A] 
-    A1max=round((max(A1)-20000),1) 
-    A2max=round((max(A2)),1) 
-    A3max=round((max(A2)*0.000125),1)                           # 0.000125V pro Count
+    A0max=round((max(A0)-20000)*0.000125/0.185*240,1)                     # Angabe in Watt!! 20000 Counts entsprechen 2,5V>>d.h. der Mittelwert des ADC bei 0V [185mV/A] 
+    A1max=round((max(A1)-20000)*0.000125/0.185*240,1) 
+    A2max=round(max(A2)*0.000125,1) 
+    A3max=round(max(A2)*0.000125,1)                           # 0.000125V pro Count
+
 def callsensor(sensor):
 
     f = open(sensorpath + sensor + sensorfile, 'r')       #Pfad, Sensor-ID und Geraetedatei zusammensetzen, Datei im Lesemodus oeffnen
@@ -247,11 +249,11 @@ def txt1():                            #Text Messwerte
     global Text3
     global Text4
 
-    Text0 = ("A0 " + str(A0max))
-    Text1 = ("A1 " + str(A1max))
-    Text2 = ("1:" + str(round(T1,1)) + " 2:" + str(round(T2,1)))
-    Text3 = ("3:" + str(T3) + " 4:" + str(T4))
-    Text4 = ("Vg:" + str(Vg))
+    Text0 = ("A0 " + str(round(A0max,1)) + " V " + str(Vg))
+    Text1 = ("A1 " + str(round(A1max,1)))
+    Text2 = ("A2 " + str(round(A2max,1)) + " A3 " + str(round(A3max,1)))
+    Text3 = (" " + str(round(T1,1)) + " " + str(round(T2,1)))
+    Text4 = (" " + str(round(T3,1)) + " " + str(round(T4,1)))
 
 def txt2():                            #Abfrage boot/reboot?
     global Text0
@@ -275,7 +277,7 @@ def txt3():                            #boot text
     global Text4
     timestr = time.strftime("%Y%m%d_%H:%M")
 
-    Text0 = ("ACC5.8.py")
+    Text0 = ("ACC6.1.py")
     Text1 = ("LCD-check")
     Text2 = ("BL-check")
     Text3 = (str(timestr))
@@ -387,21 +389,28 @@ GPIO.add_event_detect(13, GPIO.RISING, callback = V_g, bouncetime = 25)
 
 
 
+
 try:
 
     while True:
-        print("Tgn:", Tgn)
-        print("Trt:", Trt)
-        #Displaybeleuchtung ueber Trt
-        #GPIO.output(12, GPIO.HIGH)
+        if NAS:
+            f = open("/home/pi/NAS/error.log", "a") 
+            f.write("4")
+            f.close()
+            print("NAS 4 written")
+            NAS = False
+           
+        
+        #Displaybeleuchtung ueber Trt ON/OFF
+        
 
-        if (Trt > 0):
+        if (Trt == 1):
             GPIO.output(12, GPIO.HIGH)
-            time.sleep(5)
+        if (Trt == 2):
             GPIO.output(12, GPIO.LOW)
             Trt = 0
 
-        if (Tgn < 1):                            #Mittelwertbildung aus 15 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
+        if (Tgn < 1):                            #Mittelwertbildung aus 2 Werten zur Speicherung, LCD-Ausgabe alle 4 sec.
             Endzeit = time.time()
             delta = (Endzeit - Startzeit)/60/60  # Zeit in Stunden seit Versuchsstart
             cpu = CPUTemperature()
@@ -414,19 +423,19 @@ try:
             Nokia()
 
             Datum=time.strftime("%Y-%m-%d %H:%M:%S")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + "     t: " + str(round(delta,3)) +   ': ' + "             A0: "  + str(round(A0max,1)) + " A1: " + str(round(A1max,1)) + "             A2 "  + str(A2max)   +  "             A3 "  + str(A3max)  + "      T1: " + str(T1) + " T2: " + str(T2) + " T3: " + str(T3) + " T4: " + str(T4) + "       Vg:" + str(V))
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + "     t: " + str(round(delta,3)) + "        A0: "  + str(round(A0max,1)) + "    A1: " + str(round(A1max,1)) + "     A2: "  + str(A2max)   +  "     A3: "  + str(A3max)  + "               T1: " + str(T1) + "   T2: " + str(T2) + "   T3: " + str(T3) + "   T4: " + str(T4) + "       Vg:" + str(V))
             print()
 
-            if z1 > 15:
+            if z1 > 1:
                 #y1m-y4m: ADSmax   y5m-y8m:Temp
-                y1m = round((sum(y1m)/16), 2)
-                y2m = round((sum(y2m)/16), 2)
-                y3m = round((sum(y3m)/16), 2)
-                y4m = round((sum(y4m)/16), 2)
-                y5m = round((sum(y5m)/16), 2)
-                y6m = round((sum(y6m)/16), 2)
-                y7m = round((sum(y7m)/16), 2)
-                y8m = round((sum(y8m)/16), 2)
+                y1m = round((sum(y1m)/2), 2)
+                y2m = round((sum(y2m)/2), 2)
+                y3m = round((sum(y3m)/2), 2)
+                y4m = round((sum(y4m)/2), 2)
+                y5m = round((sum(y5m)/2), 2)
+                y6m = round((sum(y6m)/2), 2)
+                y7m = round((sum(y7m)/2), 2)
+                y8m = round((sum(y8m)/2), 2)
 
 
                 
@@ -512,7 +521,7 @@ try:
             time.sleep(4)
             print("Trt",Trt)
 
-            if (Trt > 3):
+            if (Trt > 2):              # also 3* Trt
                 GPIO.output(12, GPIO.HIGH)
                 print('shutdown!!!')
                 print("Trt: " + str(Trt))
@@ -521,7 +530,7 @@ try:
                 subprocess.call('/home/pi/ACC/shutdown.sh')
                 time.sleep(4)
             
-            if (Trt > 1):
+            if (Trt > 1):             # also 2*Trt
                 t = threading.Thread(target=TGZ_sim1)
                 t.start()
                 time.sleep(2)
@@ -530,7 +539,6 @@ try:
                 print("Trt: " + str(Trt))
                 txt4()                                 #LCD-Ausgabe Trt Tgn und reboot
                 Nokia()
-                time.sleep(4)
                 subprocess.call('/home/pi/ACC/reboot.sh')
                 time.sleep(4)
 
@@ -551,6 +559,7 @@ except KeyboardInterrupt:
     GPIO.cleanup()
     print("\nBye")
     sys.exit()
+
 
 
 
