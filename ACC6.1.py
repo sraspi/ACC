@@ -158,7 +158,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC6.1.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 7, LCD-Ausgabe BL-ON/OFF." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC6.1.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 8, LCD-Ausgabe BL-ON/OFF." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -207,7 +207,7 @@ def ads(): # Read all the ADC channel values in a list.
     A3max=round(max(A2)*0.000125,1)                           # 0.000125V pro Count
 
 def callsensor(sensor):
-
+    
     f = open(sensorpath + sensor + sensorfile, 'r')       #Pfad, Sensor-ID und Geraetedatei zusammensetzen, Datei im Lesemodus oeffnen
     lines = f.readlines()                     #Inhalt der Datei in lines schreiben
     f.close()                         #Datei schliessen
@@ -350,18 +350,23 @@ def DS1820():
     s2 = sensors[1]
     s3 = sensors[2]
     s4 = sensors[3]
+
+    time.sleep(0.1)
     
     T1 = round(((callsensor(s1)) + 0.22), 2)
     if (T1 > 125):
         T1 = round((T1 - 4096), 2)
+    time.sleep(0.1)
 
     T2 = round(((callsensor(s2)) - 0.4), 2)
     if (T2 > 125):
         T2 = round((T2 -4096), 2)
+    time.sleep(0.1)
 
     T3 = round(((callsensor(s3)) + 0.15), 2)
     if (T3 > 125):
         T3 = round((T3 - 4096), 2)
+    time.sleep(0.1)
 
     T4 = round(((callsensor(s4)) + 0.1), 2)
     if (T4 > 125):
