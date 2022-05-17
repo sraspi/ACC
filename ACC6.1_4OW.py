@@ -52,7 +52,7 @@ Tgn = 0 #aufsummierte Taster_grün
 Trt = 0 #aufsummierte Taster_rot
 
 z1 = 0
-NAS  = True
+NAS  = False
 
 port = 1 							# init BME280
 address = 0x76
@@ -158,7 +158,7 @@ def TGZ_sim1():
         a = a +1
 #                                      DS1820 zeigt bei Minus-Graden 4096 etc. an: 
 def Input():
-    header = ("ACC6.1.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 8, LCD-Ausgabe BL-ON/OFF." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3 , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
+    header = ("ACC6.1.py started at: " +timestr + '\n' + "#ADSmax; 4*1W; Mittelwertbildung aus 2 Werten zur Speicherung, NAS 8, LCD-Ausgabe BL-ON/OFF." + '\n' + "Zeit ," + "                 t[h] ," +  "     A1 [W]," + "  A2 ,"  + "     A3 ,  "  +  "      A4 , "  + "   T1 , " + "     T2 , " + "    T3_BAD , "  + "       T4 , " + "  V ," + " CPU_temp, " '\n')
     data = open(Dateiname, "a")
     data.write(str(header))
     data.close()
@@ -374,6 +374,7 @@ def DS1820():
 
 
 t = threading.Thread(target=TGZ_sim1)
+print("ACC6.1 incl. 4*DS1820 T3= Bad_Klima_out, T4 Bad_Klima_in")
 t.start()
 time.sleep(1.5)                          #time.sleep notwendig um auf thread-Ende zu warten!
 GPIO.output(12, GPIO.HIGH)
